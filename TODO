@@ -1,0 +1,4 @@
+TODO:
+- Allow opts to be specified else use defaults
+- switch out from using named table ids
+- Allow some code to be run on the table if returned to manager
