@@ -1,7 +1,7 @@
 {application, ets_manager,
  [
-  {description, ""},
-  {vsn, "1"},
+  {description, "Manage ets table creation."},
+  {vsn, git},
   {registered, []},
   {applications, [
                   kernel,
