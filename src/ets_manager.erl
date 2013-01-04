@@ -9,7 +9,7 @@
 %% API Function Exports
 %% ------------------------------------------------------------------
 
--export([start_link/0, give_me/1]).
+-export([start_link/0, give_me/1, give_me/2]).
 
 %% ------------------------------------------------------------------
 %% gen_server Function Exports
@@ -37,6 +37,9 @@ start_link() ->
 give_me(Name) ->
     gen_server:call(?MODULE, {give_me, Name}).
 
+give_me(Name, Opts) ->
+    gen_server:call(?MODULE, {give_me, Name, Opts}).
+
 %% ------------------------------------------------------------------
 %% gen_server Function Definitions
 %% ------------------------------------------------------------------
@@ -55,6 +58,9 @@ init([]) ->
 
 handle_call({give_me, Name}, {Pid, _Tag}, State) ->
     Return = give_me(Name, Pid, State),
+    {reply, Return, State};
+handle_call({give_me, Name, Opts}, {Pid, _Tag}, State) ->
+    Return = give_me(Name, Opts, Pid, State),
     {reply, Return, State};
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
@@ -85,9 +91,12 @@ code_change(_OldVsn, State, _Extra) ->
 %% @doc Create or return an ets table for use. It will make the ets_manager
 %% a heir on the table so that on failure it is returned to it.
 give_me(Name, Pid, State) ->
+    give_me(Name, [], Pid, State).
+
+give_me(Name, Opts, Pid, State) ->
     Me = self(),
     case ets:info(Name) of
-        undefined -> Tid = ets:new(Name, State#state.opts),
+        undefined -> Tid = ets:new(Name, State#state.opts ++ Opts),
                      case ets:give_away(Tid, Pid, new_table) of
                          true -> {ok, Tid};
                          false -> {error, cant_give_away}
